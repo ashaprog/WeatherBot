@@ -37,13 +37,14 @@ def text(message):
 @bot.message_handler(content_types=["location"])
 def locatWeather(message):
     if message.location is not None:
+        bot.send_message(message.chat.id, 'Ищу погоду в вашем городе...')
         lat = message.location.latitude
         lon = message.location.longitude
         observation = mgr.weather_at_coords(lat, lon)
         w = observation.weather
-        weathercondRus = {'clear sky': 'ясно', 'few clouds': 'мало-облачно', 'scattered clouds': 'несколько облачно',
-                          'broken clouds': 'облачно', 'shower rain': 'ливень',
-                          'rain': 'дождь', 'thunderstorm': 'гроза', 'snow': 'идет снег', 'mist': 'туманно'}
+        weathercondRus = {'clear sky': 'ясно☀', 'few clouds': 'мало-облачно⛅', 'scattered clouds': 'несколько облачно🌤️',
+                          'broken clouds': 'облачно☁', 'shower rain': 'ливень💦',
+                          'rain': 'дождь🌧️', 'thunderstorm': 'гроза🌩️', 'snow': 'идет снег🌨️', 'mist': 'туманно🌫️', 'overcast clouds': 'облачно☁'}
         w.detailed_status = weathercondRus[w.detailed_status]
         wind = w.wind()['speed']
         feel = int(w.temperature('celsius')['feels_like'])
@@ -51,33 +52,34 @@ def locatWeather(message):
         prompt = f"Скажи что одеть в {w.detailed_status} погоду в 1 предложении при температуре {feel} градусов"
         completion = openai.Completion.create(engine=engine, prompt=prompt, temperature=0.5, max_tokens=1000)
         completionG = completion.choices[0]['text']
-        bot.send_message(message.chat.id, f'В вашем городе сейчас {w.detailed_status} \nТемпература {temp} градусов. Ощущается как {feel} градусов. Ветер {wind} м/с. {completionG}')
+        bot.send_message(message.chat.id, f'☀В вашем городе сейчас {w.detailed_status} \n🌡️Температура {temp} градусов. Ощущается как {feel} градусов. 💨Ветер {wind} м/с. {completionG}-Совет от ChatGPT🤓')
 
 #хендлер команды /city
 
 @bot.message_handler(commands=['city'])
 def city(message):
     city = message.text
-    bot.send_message(message.chat.id, "Введи название города")
+    bot.send_message(message.chat.id, "🌇Введи название города")
     bot.register_next_step_handler(message, cityWeather)
 def cityWeather(message):
     try:
-        bot.send_message(message.chat.id, 'Ищу погоду в городе {city}'.format(city=message.text))
+        bot.send_message(message.chat.id, '☀Ищу погоду в городе {city}'.format(city=message.text))
         data = message.text
         observation = mgr.weather_at_place(data)
         w = observation.weather
         wind = w.wind()['speed']
         temp = int(w.temperature('celsius')['temp'])
-        weathercondRus = {'clear sky': 'ясно', 'few clouds': 'мало-облачно', 'scattered clouds': 'несколько облачно',
-                          'broken clouds': 'облачно', 'shower rain': 'ливень',
-                          'rain': 'дождь', 'thunderstorm': 'гроза', 'snow': 'идет снег', 'mist': 'туманно'}
+        weathercondRus = {'clear sky': 'ясно☀', 'few clouds': 'мало-облачно⛅',
+                          'scattered clouds': 'несколько облачно🌤️',
+                          'broken clouds': 'облачно☁', 'shower rain': 'ливень💦',
+                          'rain': 'дождь🌧️', 'thunderstorm': 'гроза🌩️', 'snow': 'идет снег🌨️', 'mist': 'туманно🌫️', 'overcast clouds': 'облачно☁'}
         w.detailed_status = weathercondRus[w.detailed_status]
         feel = int(w.temperature('celsius')['feels_like'])
         prompt = f"Скажи что одеть в {w.detailed_status} погоду в 1 предложении при температуре {feel} градусов"
         completion = openai.Completion.create(engine=engine, prompt=prompt, temperature=0.5, max_tokens=1000)
         completionG = completion.choices[0]['text']
         bot.send_message(message.chat.id,
-                         f'В городе {message.text} сейчас {w.detailed_status} \nТемпература {temp} градусов. Ощущается как {feel} градусов. Ветер {wind} м/с {completionG}')
+                         f'☀В городе {message.text} сейчас {w.detailed_status} \n🌡️Температура {temp} градусов. Ощущается как {feel} градусов. 💨Ветер {wind} м/с {completionG}-Совет от ChatGPT🤓')
     except Exception as error:
         bot.send_message(message.chat.id, 'Я не нашел такого города, попробуйте еще раз)')
 
@@ -89,5 +91,4 @@ def text_handler(message):
     pass
 
 bot.polling(none_stop=True)
-
 
