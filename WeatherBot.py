@@ -49,7 +49,7 @@ def help(message):
 @bot.message_handler(content_types=["location"])
 def locatWeather(message):
     if message.location is not None:
-        bot.send_message(message.chat.id, '☀Ищу погоду в вашем городе...')
+        bot.send_message(message.chat.id, '☀Ищу погоду в вашем городе. Этот процесс может занять несколько минут...⌛')
         lat = message.location.latitude
         lon = message.location.longitude
         observation = mgr.weather_at_coords(lat, lon)
@@ -76,7 +76,7 @@ def city(message):
     bot.register_next_step_handler(message, cityWeather)
 def cityWeather(message):
     try:
-        bot.send_message(message.chat.id, '☀Ищу погоду в городе {city}'.format(city=message.text))
+        bot.send_message(message.chat.id, '☀Ищу погоду в городе {city}. Этот процесс может занять несколько минут...⌛'.format(city=message.text))
         data = message.text
         observation = mgr.weather_at_place(data)
         w = observation.weather
